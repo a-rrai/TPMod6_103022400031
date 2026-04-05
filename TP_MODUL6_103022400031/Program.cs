@@ -1,5 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-using System;
+﻿using System;
+using System.Diagnostics;
 
 namespace TP_MODUL6_NIM
 {
@@ -11,6 +11,9 @@ namespace TP_MODUL6_NIM
 
         public SayaMusicTrack(string title)
         {
+            Debug.Assert(title != null, "Error: Judul track tidak boleh null.");
+            Debug.Assert(title.Length <= 100, "Error: Judul track maksimal 100 karakter.");
+
             this.title = title;
 
             Random rnd = new Random();
@@ -21,7 +24,19 @@ namespace TP_MODUL6_NIM
 
         public void IncreasePlayCount(int count)
         {
-            this.playCount += count;
+            Debug.Assert(count <= 10000000, "Error: Input penambahan play count maksimal 10.000.000.");
+
+            try
+            {
+                checked
+                {
+                    this.playCount += count;
+                }
+            }
+            catch (OverflowException)
+            {
+                Console.WriteLine(">> [Exception Ditangkap] Error: Penambahan play count melebihi batas maksimum integer (overflow).");
+            }
         }
 
         public void PrintTrackDetails()
@@ -37,14 +52,17 @@ namespace TP_MODUL6_NIM
     {
         static void Main(string[] args)
         {
-            SayaMusicTrack track1 = new SayaMusicTrack("RUDE! - Hearts2Hearts");
+            Console.WriteLine("=== MENGUJI OVERFLOW ===");
+            SayaMusicTrack track2 = new SayaMusicTrack("RUDE! - Hearts2Hearts");
 
-            Console.WriteLine("Kondisi Awal:");
-            track1.PrintTrackDetails();
+            Console.WriteLine("Memulai looping untuk memicu overflow...");
+            for (int i = 0; i < 300; i++)
+            {
+                track2.IncreasePlayCount(10000000);
+            }
 
-            Console.WriteLine("Setelah ditambah play count:");
-            track1.IncreasePlayCount(500);
-            track1.PrintTrackDetails();
+            Console.WriteLine("\nKondisi akhir track setelah Exception terjadi:");
+            track2.PrintTrackDetails();
         }
     }
 }
